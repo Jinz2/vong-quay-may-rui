@@ -1,0 +1,438 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vòng Quay Pixel May Mắn</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background-color: #202020; /* Nền tối kiểu game retro */
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 15px;
+            box-sizing: border-box;
+            overflow: hidden; /* Ngăn pháo hoa tràn ra ngoài */
+        }
+        .game-container {
+            background-color: #303030;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 0 5px #444444, 0 0 0 10px #555555, 0 0 20px rgba(0,0,0,0.7);
+            text-align: center;
+        }
+        .game-title {
+            color: #ffcc00; /* Vàng pixel */
+            text-shadow: 2px 2px #000000;
+            margin-bottom: 20px;
+            font-size: 1.8rem; /* Kích thước font cho tiêu đề */
+        }
+        .wheel-wrapper {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 30px auto;
+        }
+        #pixelWheelCanvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            transition: transform 7s cubic-bezier(0.25, 0.1, 0.25, 1);
+            border: 4px solid #505050;
+            image-rendering: pixelated; /* Giữ hiệu ứng pixel khi vẽ */
+        }
+        .pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 30px solid #ff3030; /* Màu đỏ pixel cho kim */
+            z-index: 10;
+        }
+        #spinButton {
+            background-color: #00b800; /* Xanh lá pixel */
+            color: white;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            border: 2px solid #008000;
+            box-shadow: 0 4px #005000;
+            text-shadow: 1px 1px #000000;
+        }
+        #spinButton:hover:not(:disabled) { /* Thêm :not(:disabled) */
+            background-color: #00d800;
+        }
+        #spinButton:active:not(:disabled) { /* Thêm :not(:disabled) */
+            transform: translateY(2px);
+            box-shadow: 0 2px #005000;
+        }
+        #spinButton:disabled {
+            background-color: #707070;
+            border-color: #505050;
+            box-shadow: 0 4px #303030;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .spin-chances-text {
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: #dddddd;
+        }
+        .spin-chances-text span {
+            color: #ffcc00;
+            font-size: 1rem;
+        }
+
+        /* Popup kết quả */
+        .result-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 15px;
+        }
+        .result-popup-content {
+            background-color: #404040;
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 0 0 4px #585858, 0 0 15px rgba(0,0,0,0.5);
+            border: 3px solid #707070;
+            max-width: 90%;
+            width: 350px;
+        }
+        .result-popup-content h2 {
+            font-size: 1.5rem;
+            color: #ffcc00;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px #000;
+        }
+        .result-popup-content p {
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+        .result-popup-content p strong {
+            color: #00ff00; /* Màu xanh lá cho phần thưởng tốt */
+            font-size: 1.1em;
+        }
+        .result-popup-content p.sad-message strong {
+            color: #ff5050; /* Màu đỏ cho thông báo buồn */
+        }
+        .result-popup-content button {
+            background-color: #ffcc00;
+            color: #202020;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            border: 2px solid #e0b000;
+            box-shadow: 0 3px #c09000;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .result-popup-content button:hover {
+            background-color: #ffeeaa;
+        }
+        .result-popup-content button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px #c09000;
+        }
+        .reward-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        /* Fireworks Canvas */
+        #fireworksCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Để không cản click */
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="game-title text-2xl md:text-3xl">VÒNG QUAY PIXEL</h1>
+        <p id="spinMessage" class="text-xs text-gray-400 mb-6">Thử vận may của bạn!</p>
+
+        <div class="wheel-wrapper">
+            <div class="pointer"></div>
+            <canvas id="pixelWheelCanvas" width="300" height="300"></canvas>
+        </div>
+
+        <button id="spinButton"><i class="fas fa-play mr-2"></i>QUAY NGAY!</button>
+        <p class="spin-chances-text">Lượt quay hôm nay: <span id="spinChancesToday">1</span></p>
+    </div>
+
+    <div id="resultPopup" class="result-popup">
+        <div class="result-popup-content">
+            <div id="rewardIconDisplay" class="reward-icon"></div>
+            <h2 id="resultTitle">CHÚC MỪNG!</h2>
+            <p id="rewardTextDisplay">Bạn đã trúng: ...</p>
+            <button id="closePopup">OK</button>
+        </div>
+    </div>
+
+    <canvas id="fireworksCanvas"></canvas>
+
+    <script>
+        const wheelCanvas = document.getElementById('pixelWheelCanvas');
+        const ctx = wheelCanvas.getContext('2d');
+        const spinButton = document.getElementById('spinButton');
+        const resultPopup = document.getElementById('resultPopup');
+        const resultTitleEl = document.getElementById('resultTitle');
+        const rewardTextDisplayEl = document.getElementById('rewardTextDisplay');
+        const rewardIconDisplayEl = document.getElementById('rewardIconDisplay');
+        const closePopup = document.getElementById('closePopup');
+        const spinChancesTodayEl = document.getElementById('spinChancesToday');
+        const spinMessageEl = document.getElementById('spinMessage'); // Thêm element cho thông báo
+        const fireworksCanvas = document.getElementById('fireworksCanvas');
+        const fireworksCtx = fireworksCanvas.getContext('2d');
+
+        let spinsAvailableToday = 1; // Số lượt quay được phép trong ngày
+        let spinning = false;
+        let currentAngle = 0;
+
+        // --- Âm thanh với Tone.js ---
+        const winSound = new Tone.Synth({
+            oscillator: { type: "triangle" },
+            envelope: { attack: 0.01, decay: 0.1, sustain: 0.3, release: 0.5 }
+        }).toDestination();
+        winSound.volume.value = -10;
+
+        const loseSound = new Tone.Synth({
+            oscillator: { type: "sawtooth" },
+            envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.3 }
+        }).toDestination();
+        loseSound.volume.value = -10;
+
+        const rewards = [
+            { text: "10.000 VNĐ", probability: 0.30, color: "#4CAF50", icon: "💰", isGood: true },
+            { text: "15.000 VNĐ", probability: 0.20, color: "#2196F3", icon: "💰", isGood: true },
+            { text: "Chúc bạn may mắn!", probability: 0.20, color: "#9E9E9E", icon: "😥", isGood: false },
+            { text: "20.000 VNĐ", probability: 0.12, color: "#FFC107", icon: "💰", isGood: true },
+            { text: "x1 Bùa Bảo Hộ Chuỗi", probability: 0.08, color: "#9C27B0", icon: "🛡️", isGood: true },
+            { text: "25.000 VNĐ", probability: 0.06, color: "#FF5722", icon: "💰", isGood: true },
+            { text: "30.000 VNĐ", probability: 0.04, color: "#E91E63", icon: "💎", isGood: true }
+        ];
+
+        const numSegments = rewards.length;
+        const anglePerSegment = (2 * Math.PI) / numSegments;
+
+        function getTodayDateString() {
+            return new Date().toDateString();
+        }
+
+        function checkSpinAvailability() {
+            const lastSpinDate = localStorage.getItem('pixelWheelLastSpinDate');
+            const today = getTodayDateString();
+
+            if (lastSpinDate === today) {
+                spinsAvailableToday = 0;
+                spinButton.disabled = true;
+                spinMessageEl.textContent = "Bạn đã hết lượt quay hôm nay. Hẹn gặp lại vào ngày mai!";
+                spinMessageEl.classList.add("text-yellow-400");
+            } else {
+                spinsAvailableToday = 1; // Reset lượt quay cho ngày mới
+                spinButton.disabled = false;
+                spinMessageEl.textContent = "Thử vận may của bạn!";
+                spinMessageEl.classList.remove("text-yellow-400");
+            }
+            spinChancesTodayEl.textContent = spinsAvailableToday;
+        }
+
+
+        function drawPixelText(text, x, y, color = "#FFFFFF", fontSize = 10) {
+            ctx.fillStyle = color;
+            ctx.font = `${fontSize}px 'Press Start 2P'`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(text, x, y);
+        }
+        
+        function drawWheel() {
+            const radius = wheelCanvas.width / 2;
+            ctx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+            rewards.forEach((reward, i) => {
+                const angle = i * anglePerSegment;
+                ctx.beginPath();
+                ctx.moveTo(radius, radius);
+                ctx.arc(radius, radius, radius - 2, angle, angle + anglePerSegment);
+                ctx.closePath();
+                ctx.fillStyle = reward.color;
+                ctx.fill();
+                ctx.strokeStyle = "#181818"; 
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate(radius, radius);
+                ctx.rotate(angle + anglePerSegment / 2);
+                
+                const iconText = reward.icon;
+                const rewardName = reward.text;
+                const textYOffset = reward.icon ? 8 : 0;
+
+                if (reward.icon) {
+                    drawPixelText(iconText, radius * 0.6, -8, "#FFFFFF", 16);
+                }
+                drawPixelText(rewardName, radius * 0.6, textYOffset, "#FFFFFF", rewardName.includes("VNĐ") ? 7 : 6);
+
+                ctx.restore();
+            });
+        }
+
+        function getReward() {
+            let rand = Math.random();
+            let cumulativeProbability = 0;
+            for (let i = 0; i < rewards.length; i++) {
+                cumulativeProbability += rewards[i].probability;
+                if (rand <= cumulativeProbability) {
+                    return i;
+                }
+            }
+            return rewards.length - 1;
+        }
+
+        fireworksCanvas.width = window.innerWidth;
+        fireworksCanvas.height = window.innerHeight;
+        let particles = [];
+
+        function Particle(x, y, color) {
+            this.x = x;
+            this.y = y;
+            this.color = color;
+            this.size = Math.random() * 3 + 1;
+            this.speedX = Math.random() * 6 - 3;
+            this.speedY = Math.random() * 6 - 3;
+            this.life = 50 + Math.random() * 50;
+        }
+
+        Particle.prototype.update = function() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            this.speedY += 0.05;
+            this.life -= 1;
+        };
+
+        Particle.prototype.draw = function() {
+            fireworksCtx.fillStyle = this.color;
+            fireworksCtx.fillRect(this.x, this.y, this.size * 2, this.size * 2);
+        };
+
+        function createFireworks(x, y) {
+            particles = [];
+            const particleCount = 100;
+            const colors = ["#FFD700", "#FF69B4", "#00FFFF", "#7FFF00", "#FF4500"];
+            for (let i = 0; i < particleCount; i++) {
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                particles.push(new Particle(x, y, color));
+            }
+        }
+
+        function animateFireworks() {
+            fireworksCtx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].life <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+            if (particles.length > 0) {
+                requestAnimationFrame(animateFireworks);
+            }
+        }
+
+        spinButton.addEventListener('click', () => {
+            if (spinning || spinsAvailableToday <= 0) return;
+
+            spinning = true;
+            spinButton.disabled = true; // Vô hiệu hóa nút ngay khi bắt đầu quay
+            spinsAvailableToday--;
+            spinChancesTodayEl.textContent = spinsAvailableToday;
+            localStorage.setItem('pixelWheelLastSpinDate', getTodayDateString()); // Lưu ngày đã quay
+
+            const now = Tone.now();
+            const synth = new Tone.Synth().toDestination();
+            synth.triggerAttackRelease("C4", "8n", now);
+            synth.triggerAttackRelease("E4", "8n", now + 0.1);
+            synth.triggerAttackRelease("G4", "8n", now + 0.2);
+
+            const winningSegmentIndex = getReward();
+            const winningReward = rewards[winningSegmentIndex];
+            const angleToWinningSegmentCenter = (2 * Math.PI) - (winningSegmentIndex * anglePerSegment + anglePerSegment / 2);
+            const randomOffset = (Math.random() - 0.5) * anglePerSegment * 0.7;
+            const randomSpins = Math.floor(Math.random() * 3) + 7;
+            const totalRotation = (randomSpins * 2 * Math.PI) + angleToWinningSegmentCenter + randomOffset;
+            
+            currentAngle += totalRotation;
+            wheelCanvas.style.transform = `rotate(${currentAngle}rad)`;
+
+            setTimeout(() => {
+                spinning = false;
+                // Không bật lại nút spin ở đây nữa vì đã hết lượt trong ngày
+                
+                let rewardMessage = winningReward.text;
+                rewardIconDisplayEl.textContent = winningReward.icon;
+                rewardTextDisplayEl.classList.remove("sad-message");
+
+                if (winningReward.isGood) {
+                    resultTitleEl.textContent = "CHIẾN THẮNG!";
+                    rewardTextDisplayEl.innerHTML = `Bạn nhận được: <strong>${rewardMessage}</strong>`;
+                    winSound.triggerAttackRelease("C5", "8n", Tone.now());
+                    winSound.triggerAttackRelease("E5", "8n", Tone.now() + 0.1);
+                    winSound.triggerAttackRelease("G5", "8n", Tone.now() + 0.2);
+                    winSound.triggerAttackRelease("C6", "4n", Tone.now() + 0.3);
+                    createFireworks(window.innerWidth / 2, window.innerHeight / 2);
+                    animateFireworks();
+                } else {
+                    resultTitleEl.textContent = "ỐI...";
+                    rewardTextDisplayEl.innerHTML = `<strong class="sad-message">${rewardMessage}</strong>`;
+                    rewardTextDisplayEl.classList.add("sad-message");
+                    loseSound.triggerAttackRelease("G3", "4n", Tone.now());
+                    loseSound.triggerAttackRelease("E3", "4n", Tone.now() + 0.2);
+                    loseSound.triggerAttackRelease("C3", "2n", Tone.now() + 0.4);
+                }
+                
+                resultPopup.style.display = 'flex';
+                checkSpinAvailability(); // Cập nhật lại trạng thái nút và thông báo sau khi quay xong
+
+            }, 7100);
+        });
+
+        closePopup.addEventListener('click', () => {
+            resultPopup.style.display = 'none';
+            fireworksCtx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+        });
+
+        // Khởi tạo
+        drawWheel();
+        checkSpinAvailability(); // Kiểm tra lượt quay khi tải trang
+    </script>
+</body>
+</html>
