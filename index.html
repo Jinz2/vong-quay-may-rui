@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vòng Quay Pixel May Mắn</title>
+    <title>Vòng Quay Pixel Siêu Cấp</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -12,8 +11,8 @@
     <style>
         body {
             font-family: 'Press Start 2P', cursive;
-            background-color: #202020; /* Nền tối kiểu game retro */
-            color: #ffffff;
+            background-color: #1a1a2e; /* Nền tím than đậm hơn */
+            color: #e0e0e0; /* Chữ sáng hơn một chút */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -22,82 +21,94 @@
             margin: 0;
             padding: 15px;
             box-sizing: border-box;
-            overflow: hidden; /* Ngăn pháo hoa tràn ra ngoài */
+            overflow: hidden;
         }
         .game-container {
-            background-color: #303030;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 0 5px #444444, 0 0 0 10px #555555, 0 0 20px rgba(0,0,0,0.7);
+            background: linear-gradient(145deg, #2c2c44, #3a3a5a); /* Gradient nền container */
+            padding: 25px; /* Tăng padding */
+            border-radius: 15px; /* Bo tròn hơn */
+            box-shadow: 0 0 0 6px #40405c, 0 0 0 12px #50506e, 0 0 30px rgba(0,0,0,0.8); /* Viền và bóng đổ nổi bật hơn */
             text-align: center;
         }
         .game-title {
-            color: #ffcc00; /* Vàng pixel */
-            text-shadow: 2px 2px #000000;
-            margin-bottom: 20px;
-            font-size: 1.8rem; /* Kích thước font cho tiêu đề */
+            color: #ffd700; /* Vàng gold */
+            text-shadow: 3px 3px #000000, 0 0 8px #ff8c00; /* Bóng đổ và hiệu ứng glow cam */
+            margin-bottom: 25px;
+            font-size: 2rem; /* To hơn */
         }
         .wheel-wrapper {
             position: relative;
-            width: 300px;
-            height: 300px;
-            margin: 0 auto 30px auto;
+            width: 320px; /* Tăng nhẹ kích thước vòng quay */
+            height: 320px;
+            margin: 0 auto 35px auto;
         }
         #pixelWheelCanvas {
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            transition: transform 7s cubic-bezier(0.25, 0.1, 0.25, 1);
-            border: 4px solid #505050;
-            image-rendering: pixelated; /* Giữ hiệu ứng pixel khi vẽ */
+            transition: transform 7.5s cubic-bezier(0.1, 0.7, 0.3, 1); /* Hiệu ứng quay mượt hơn, "nặng" hơn */
+            border: 5px solid #606078; /* Viền dày hơn, màu khác */
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-optimize-contrast;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5), 0 0 20px rgba(255,223,186,0.2); /* Bóng trong và glow nhẹ */
         }
         .pointer {
             position: absolute;
-            top: -10px;
+            top: -15px; /* Điều chỉnh cho kim to hơn */
             left: 50%;
             transform: translateX(-50%);
             width: 0;
             height: 0;
-            border-left: 20px solid transparent;
-            border-right: 20px solid transparent;
-            border-top: 30px solid #ff3030; /* Màu đỏ pixel cho kim */
+            border-left: 25px solid transparent; /* Kim to hơn */
+            border-right: 25px solid transparent;
+            border-top: 40px solid #ff4141; /* Màu đỏ tươi cho kim */
+            filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.5));
             z-index: 10;
         }
+         .pointer::after { /* Thêm chi tiết cho kim */
+            content: '';
+            position: absolute;
+            top: -38px; /* Dịch lên trên */
+            left: -6px; /* Căn giữa */
+            width: 12px;
+            height: 12px;
+            background-color: #fff;
+            border-radius: 50%;
+            border: 2px solid #ff4141;
+        }
+
         #spinButton {
-            background-color: #00b800; /* Xanh lá pixel */
+            background: linear-gradient(180deg, #00e000, #00a000); /* Gradient xanh lá cây */
             color: white;
-            padding: 12px 25px;
-            border-radius: 5px;
-            font-size: 1rem;
+            padding: 15px 30px; /* To hơn */
+            border-radius: 8px; /* Bo tròn hơn */
+            font-size: 1.1rem; /* To hơn */
             cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
-            border: 2px solid #008000;
-            box-shadow: 0 4px #005000;
-            text-shadow: 1px 1px #000000;
+            transition: background-color 0.2s, transform 0.1s, box-shadow 0.1s;
+            border: none; /* Bỏ border cũ, dùng box-shadow */
+            box-shadow: 0 5px 0 #007000, 0 8px 15px rgba(0,0,0,0.3); /* Hiệu ứng 3D mạnh hơn */
+            text-shadow: 2px 2px #005000; /* Bóng đổ cho chữ trên nút */
         }
-        #spinButton:hover:not(:disabled) { /* Thêm :not(:disabled) */
-            background-color: #00d800;
+        #spinButton:hover:not(:disabled) {
+            background: linear-gradient(180deg, #00f000, #00b000);
         }
-        #spinButton:active:not(:disabled) { /* Thêm :not(:disabled) */
-            transform: translateY(2px);
-            box-shadow: 0 2px #005000;
+        #spinButton:active:not(:disabled) {
+            transform: translateY(3px); /* Nhấn sâu hơn */
+            box-shadow: 0 2px 0 #007000, 0 5px 10px rgba(0,0,0,0.3);
         }
         #spinButton:disabled {
-            background-color: #707070;
-            border-color: #505050;
-            box-shadow: 0 4px #303030;
+            background: #707070;
+            box-shadow: 0 5px 0 #505050;
             cursor: not-allowed;
-            opacity: 0.6;
+            opacity: 0.7;
         }
-        .spin-chances-text {
-            margin-top: 15px;
-            font-size: 0.8rem;
-            color: #dddddd;
+        .status-message-text {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #cccccc;
         }
-        .spin-chances-text span {
-            color: #ffcc00;
-            font-size: 1rem;
-        }
+
 
         /* Popup kết quả */
         .result-popup {
@@ -107,60 +118,65 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.8);
+            background-color: rgba(0,0,0,0.85);
             align-items: center;
             justify-content: center;
             z-index: 1000;
             padding: 15px;
         }
         .result-popup-content {
-            background-color: #404040;
+            background: linear-gradient(135deg, #40405c, #303048);
             color: white;
-            padding: 25px;
-            border-radius: 8px;
+            padding: 30px;
+            border-radius: 12px;
             text-align: center;
-            box-shadow: 0 0 0 4px #585858, 0 0 15px rgba(0,0,0,0.5);
-            border: 3px solid #707070;
+            box-shadow: 0 0 0 5px #50506e, 0 0 30px rgba(0,0,0,0.6);
+            border: 4px solid #707088;
             max-width: 90%;
-            width: 350px;
+            width: 380px;
         }
         .result-popup-content h2 {
-            font-size: 1.5rem;
-            color: #ffcc00;
-            margin-bottom: 15px;
-            text-shadow: 2px 2px #000;
+            font-size: 1.8rem;
+            color: #ffdd59;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px #000, 0 0 5px #ff8c00;
         }
         .result-popup-content p {
-            font-size: 1rem;
-            margin-bottom: 20px;
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            line-height: 1.6;
         }
         .result-popup-content p strong {
-            color: #00ff00; /* Màu xanh lá cho phần thưởng tốt */
-            font-size: 1.1em;
+            color: #50fa7b;
+            font-size: 1.2em;
+            text-shadow: 0 0 8px #50fa7b;
         }
         .result-popup-content p.sad-message strong {
-            color: #ff5050; /* Màu đỏ cho thông báo buồn */
+            color: #ff5555;
+            text-shadow: 0 0 8px #ff5555;
         }
         .result-popup-content button {
-            background-color: #ffcc00;
-            color: #202020;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-size: 0.9rem;
-            border: 2px solid #e0b000;
-            box-shadow: 0 3px #c09000;
-            transition: background-color 0.2s, transform 0.1s;
+            background: linear-gradient(180deg, #ffdd59, #ffcc00);
+            color: #303030;
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-size: 1rem;
+            border: none;
+            box-shadow: 0 4px 0 #e0b000, 0 6px 10px rgba(0,0,0,0.2);
+            transition: background-color 0.2s, transform 0.1s, box-shadow 0.1s;
+            text-shadow: 1px 1px #fff6d5;
         }
         .result-popup-content button:hover {
-            background-color: #ffeeaa;
+            background: linear-gradient(180deg, #ffeeaa, #ffdd59);
         }
         .result-popup-content button:active {
-            transform: translateY(1px);
-            box-shadow: 0 2px #c09000;
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #e0b000, 0 4px 8px rgba(0,0,0,0.2);
         }
         .reward-icon {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+            font-size: 3rem;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px currentColor;
         }
         /* Fireworks Canvas */
         #fireworksCanvas {
@@ -169,23 +185,21 @@
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none; /* Để không cản click */
+            pointer-events: none;
             z-index: 999;
         }
     </style>
 </head>
 <body>
     <div class="game-container">
-        <h1 class="game-title text-2xl md:text-3xl">VÒNG QUAY PIXEL</h1>
-        <p id="spinMessage" class="text-xs text-gray-400 mb-6">Thử vận may của bạn!</p>
-
+        <h1 class="game-title text-2xl md:text-3xl">VÒNG QUAY SIÊU CẤP</h1>
+        <p id="statusMessage" class="status-message-text text-xs mb-6">Sẵn sàng thử vận mệnh!</p>
         <div class="wheel-wrapper">
             <div class="pointer"></div>
             <canvas id="pixelWheelCanvas" width="300" height="300"></canvas>
         </div>
 
-        <button id="spinButton"><i class="fas fa-play mr-2"></i>QUAY NGAY!</button>
-        <p class="spin-chances-text">Lượt quay hôm nay: <span id="spinChancesToday">1</span></p>
+        <button id="spinButton"><i class="fas fa-bolt mr-2"></i>QUAY NGAY!</button>
     </div>
 
     <div id="resultPopup" class="result-popup">
@@ -193,7 +207,7 @@
             <div id="rewardIconDisplay" class="reward-icon"></div>
             <h2 id="resultTitle">CHÚC MỪNG!</h2>
             <p id="rewardTextDisplay">Bạn đã trúng: ...</p>
-            <button id="closePopup">OK</button>
+            <button id="closePopup">OK!</button>
         </div>
     </div>
 
@@ -208,69 +222,53 @@
         const rewardTextDisplayEl = document.getElementById('rewardTextDisplay');
         const rewardIconDisplayEl = document.getElementById('rewardIconDisplay');
         const closePopup = document.getElementById('closePopup');
-        const spinChancesTodayEl = document.getElementById('spinChancesToday');
-        const spinMessageEl = document.getElementById('spinMessage'); // Thêm element cho thông báo
+        const statusMessageEl = document.getElementById('statusMessage');
         const fireworksCanvas = document.getElementById('fireworksCanvas');
         const fireworksCtx = fireworksCanvas.getContext('2d');
 
-        let spinsAvailableToday = 1; // Số lượt quay được phép trong ngày
         let spinning = false;
-        let currentAngle = 0;
+        let currentAngle = 0; // Theo dõi góc quay hiện tại của canvas
 
         // --- Âm thanh với Tone.js ---
-        const winSound = new Tone.Synth({
-            oscillator: { type: "triangle" },
-            envelope: { attack: 0.01, decay: 0.1, sustain: 0.3, release: 0.5 }
+        const winSoundSynth = new Tone.PolySynth(Tone.Synth, {
+            oscillator: { type: "pulse", width: 0.2 },
+            envelope: { attack: 0.01, decay: 0.1, sustain: 0.2, release: 0.3 },
+            volume: -8
         }).toDestination();
-        winSound.volume.value = -10;
 
-        const loseSound = new Tone.Synth({
-            oscillator: { type: "sawtooth" },
-            envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.3 }
+        const loseSoundSynth = new Tone.Synth({
+            oscillator: { type: "sine" },
+            envelope: { attack: 0.05, decay: 0.3, sustain: 0.1, release: 0.7 },
+            volume: -10
         }).toDestination();
-        loseSound.volume.value = -10;
+
+         const spinStartSynth = new Tone.MembraneSynth({
+            pitchDecay: 0.01, octaves: 2,
+            envelope: { attack: 0.001, decay: 0.2, sustain: 0 },
+            volume: -12
+        }).toDestination();
 
         const rewards = [
-            { text: "10.000 VNĐ", probability: 0.30, color: "#4CAF50", icon: "💰", isGood: true },
-            { text: "15.000 VNĐ", probability: 0.20, color: "#2196F3", icon: "💰", isGood: true },
-            { text: "Chúc bạn may mắn!", probability: 0.20, color: "#9E9E9E", icon: "😥", isGood: false },
-            { text: "20.000 VNĐ", probability: 0.12, color: "#FFC107", icon: "💰", isGood: true },
-            { text: "x1 Bùa Bảo Hộ Chuỗi", probability: 0.08, color: "#9C27B0", icon: "🛡️", isGood: true },
-            { text: "25.000 VNĐ", probability: 0.06, color: "#FF5722", icon: "💰", isGood: true },
-            { text: "30.000 VNĐ", probability: 0.04, color: "#E91E63", icon: "💎", isGood: true }
+            { text: "10K VNĐ", probability: 0.30, color: "#34D399", icon: "💰", isGood: true },
+            { text: "15K VNĐ", probability: 0.20, color: "#60A5FA", icon: "💰", isGood: true },
+            { text: "Lần Sau Nhé!", probability: 0.20, color: "#A3A3A3", icon: "👻", isGood: false },
+            { text: "20K VNĐ", probability: 0.12, color: "#FACC15", icon: "💰", isGood: true },
+            { text: "Bùa Hộ Chuỗi", probability: 0.08, color: "#A78BFA", icon: "🛡️", isGood: true },
+            { text: "25K VNĐ", probability: 0.06, color: "#F87171", icon: "💰", isGood: true },
+            { text: "30K VNĐ!", probability: 0.04, color: "#EC4899", icon: "💎", isGood: true }
         ];
 
         const numSegments = rewards.length;
         const anglePerSegment = (2 * Math.PI) / numSegments;
 
-        function getTodayDateString() {
-            return new Date().toDateString();
-        }
-
-        function checkSpinAvailability() {
-            const lastSpinDate = localStorage.getItem('pixelWheelLastSpinDate');
-            const today = getTodayDateString();
-
-            if (lastSpinDate === today) {
-                spinsAvailableToday = 0;
-                spinButton.disabled = true;
-                spinMessageEl.textContent = "Bạn đã hết lượt quay hôm nay. Hẹn gặp lại vào ngày mai!";
-                spinMessageEl.classList.add("text-yellow-400");
-            } else {
-                spinsAvailableToday = 1; // Reset lượt quay cho ngày mới
-                spinButton.disabled = false;
-                spinMessageEl.textContent = "Thử vận may của bạn!";
-                spinMessageEl.classList.remove("text-yellow-400");
-            }
-            spinChancesTodayEl.textContent = spinsAvailableToday;
-        }
-
-
-        function drawPixelText(text, x, y, color = "#FFFFFF", fontSize = 10) {
+        function drawPixelText(text, x, y, color = "#FFFFFF", fontSize = 10, fontWeight = "bold") {
             ctx.fillStyle = color;
-            ctx.font = `${fontSize}px 'Press Start 2P'`;
+            ctx.font = `${fontWeight} ${fontSize}px 'Press Start 2P'`;
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
+            ctx.strokeStyle = 'rgba(0,0,0,0.7)';
+            ctx.lineWidth = 2;
+            ctx.strokeText(text, x, y);
             ctx.fillText(text, x, y);
         }
         
@@ -281,43 +279,49 @@
                 const angle = i * anglePerSegment;
                 ctx.beginPath();
                 ctx.moveTo(radius, radius);
-                ctx.arc(radius, radius, radius - 2, angle, angle + anglePerSegment);
+                // Vẽ các segment từ 0 rad (3 giờ) ngược chiều kim đồng hồ
+                ctx.arc(radius, radius, radius - 3, angle, angle + anglePerSegment);
                 ctx.closePath();
                 ctx.fillStyle = reward.color;
                 ctx.fill();
-                ctx.strokeStyle = "#181818"; 
-                ctx.lineWidth = 2;
+                ctx.strokeStyle = "#101018";
+                ctx.lineWidth = 3;
                 ctx.stroke();
 
                 ctx.save();
                 ctx.translate(radius, radius);
+                // Xoay context để chữ hướng ra ngoài từ tâm
                 ctx.rotate(angle + anglePerSegment / 2);
                 
                 const iconText = reward.icon;
                 const rewardName = reward.text;
-                const textYOffset = reward.icon ? 8 : 0;
+                
+                const iconSize = 24;
+                const textSize = rewardName.includes("VNĐ") || rewardName.length > 12 ? 8 : 9;
+                const textYOffset = iconText ? 12 : 0;
 
-                if (reward.icon) {
-                    drawPixelText(iconText, radius * 0.6, -8, "#FFFFFF", 16);
+                if (iconText) {
+                    drawPixelText(iconText, radius * 0.5, -10, "#FFFFFF", iconSize);
                 }
-                drawPixelText(rewardName, radius * 0.6, textYOffset, "#FFFFFF", rewardName.includes("VNĐ") ? 7 : 6);
+                drawPixelText(rewardName, radius * 0.5, textYOffset, "#FFFFFF", textSize);
 
                 ctx.restore();
             });
         }
 
-        function getReward() {
+        function getReward() { // Chọn phần thưởng dựa trên xác suất
             let rand = Math.random();
             let cumulativeProbability = 0;
             for (let i = 0; i < rewards.length; i++) {
                 cumulativeProbability += rewards[i].probability;
                 if (rand <= cumulativeProbability) {
-                    return i;
+                    return i; // Trả về chỉ số của phần thưởng trúng
                 }
             }
-            return rewards.length - 1;
+            return rewards.length - 1; // Fallback
         }
 
+        // --- Fireworks Logic (Giữ nguyên) ---
         fireworksCanvas.width = window.innerWidth;
         fireworksCanvas.height = window.innerHeight;
         let particles = [];
@@ -326,28 +330,32 @@
             this.x = x;
             this.y = y;
             this.color = color;
-            this.size = Math.random() * 3 + 1;
-            this.speedX = Math.random() * 6 - 3;
-            this.speedY = Math.random() * 6 - 3;
-            this.life = 50 + Math.random() * 50;
+            this.size = Math.random() * 5 + 2;
+            this.speedX = (Math.random() - 0.5) * 10;
+            this.speedY = (Math.random() - 0.5) * 10 - 2;
+            this.life = 80 + Math.random() * 70;
+            this.alpha = 1;
         }
 
         Particle.prototype.update = function() {
             this.x += this.speedX;
             this.y += this.speedY;
-            this.speedY += 0.05;
+            this.speedY += 0.1;
             this.life -= 1;
+            this.alpha = this.life / 100;
         };
 
         Particle.prototype.draw = function() {
+            fireworksCtx.globalAlpha = Math.max(0, this.alpha);
             fireworksCtx.fillStyle = this.color;
-            fireworksCtx.fillRect(this.x, this.y, this.size * 2, this.size * 2);
+            fireworksCtx.fillRect(this.x - this.size / 2, this.y - this.size / 2, this.size, this.size);
+            fireworksCtx.globalAlpha = 1;
         };
 
-        function createFireworks(x, y) {
+        function createBurst(x, y) {
             particles = [];
-            const particleCount = 100;
-            const colors = ["#FFD700", "#FF69B4", "#00FFFF", "#7FFF00", "#FF4500"];
+            const particleCount = 200;
+            const colors = ["#FFD700", "#FF69B4", "#00FFFF", "#7FFF00", "#FF4500", "#FFFFFF", "#ffcc00", "#ff3030", "#00b800"];
             for (let i = 0; i < particleCount; i++) {
                 const color = colors[Math.floor(Math.random() * colors.length)];
                 particles.push(new Particle(x, y, color));
@@ -367,62 +375,100 @@
                 requestAnimationFrame(animateFireworks);
             }
         }
+        // --- End Fireworks Logic ---
 
         spinButton.addEventListener('click', () => {
-            if (spinning || spinsAvailableToday <= 0) return;
+            if (spinning) return;
 
             spinning = true;
-            spinButton.disabled = true; // Vô hiệu hóa nút ngay khi bắt đầu quay
-            spinsAvailableToday--;
-            spinChancesTodayEl.textContent = spinsAvailableToday;
-            localStorage.setItem('pixelWheelLastSpinDate', getTodayDateString()); // Lưu ngày đã quay
+            spinButton.disabled = true;
+            statusMessageEl.textContent = "Đang quay...";
+            statusMessageEl.classList.add("text-yellow-400");
 
             const now = Tone.now();
-            const synth = new Tone.Synth().toDestination();
-            synth.triggerAttackRelease("C4", "8n", now);
-            synth.triggerAttackRelease("E4", "8n", now + 0.1);
-            synth.triggerAttackRelease("G4", "8n", now + 0.2);
+            spinStartSynth.triggerAttackRelease("C2", "8n", now);
 
-            const winningSegmentIndex = getReward();
+            const winningSegmentIndex = getReward(); // Đây là phần thưởng THỰC SỰ trúng
             const winningReward = rewards[winningSegmentIndex];
-            const angleToWinningSegmentCenter = (2 * Math.PI) - (winningSegmentIndex * anglePerSegment + anglePerSegment / 2);
-            const randomOffset = (Math.random() - 0.5) * anglePerSegment * 0.7;
-            const randomSpins = Math.floor(Math.random() * 3) + 7;
-            const totalRotation = (randomSpins * 2 * Math.PI) + angleToWinningSegmentCenter + randomOffset;
+
+            // *** SỬA LỖI CHÍNH Ở ĐÂY ***
+            // Tính toán góc để segment trúng thưởng (winningSegmentIndex) dừng lại ở vị trí kim chỉ (12 giờ)
+            // Kim chỉ ở vị trí 12 giờ, tương ứng với 3*PI/2 (hoặc -PI/2) trong hệ tọa độ canvas (0 rad là 3 giờ)
+            // Góc của tâm segment trúng thưởng: (winningSegmentIndex + 0.5) * anglePerSegment
+            // Góc mà bánh xe cần xoay (CSS transform, chiều kim đồng hồ) để tâm segment đó đến vị trí 3*PI/2:
+            // targetRotationForCSS = (3 * Math.PI / 2) - ((winningSegmentIndex + 0.5) * anglePerSegment);
+            // Tuy nhiên, vì canvas.style.transform `rotate` là góc tuyệt đối, và currentAngle tích lũy,
+            // chúng ta cần tính toán góc đích cho `currentAngle`.
+            // Góc mà phần tử ở vị trí 12 giờ (3*PI/2) của vòng quay sẽ trỏ tới sau khi quay:
+            // Nó phải là tâm của winningSegmentIndex.
+            // Góc của tâm winningSegmentIndex so với 0 rad (3 giờ) là: (winningSegmentIndex + 0.5) * anglePerSegment
+            // Để tâm này nằm ở vị trí 12 giờ (3*PI/2) sau khi quay, góc quay cuối cùng (currentAngle % 2PI) phải là:
+            // finalAngle = (3*PI/2) - ((winningSegmentIndex + 0.5) * anglePerSegment)
+            // Để đảm bảo giá trị dương cho modulo:
+            // finalAngle = ( (3 * Math.PI / 2) - ( (winningSegmentIndex + 0.5) * anglePerSegment ) % (2*Math.PI) + 2*Math.PI ) % (2*Math.PI);
+            
+            // Góc mà chúng ta muốn tâm của winningSegmentIndex dừng lại (so với 0 rad của canvas - tức là vị trí 3 giờ)
+            // Kim chỉ của chúng ta ở 12 giờ, tức là 3*PI/2 rad so với 0 rad (3 giờ) của canvas.
+            // Vậy, góc mà segment trúng thưởng cần phải được xoay TỚI, để nó nằm dưới kim chỉ (12 giờ) là:
+            // targetStopAngle = 3 * Math.PI / 2; (Đây là vị trí của kim chỉ)
+            // Góc ban đầu của TÂM segment trúng thưởng là:
+            const centerOfWinningSegment = (winningSegmentIndex + 0.5) * anglePerSegment;
+            // Góc xoay cần thiết để đưa tâm của segment trúng thưởng đến vị trí kim chỉ (12 giờ)
+            // CSS rotate xoay theo chiều kim đồng hồ.
+            // Nếu kim ở 12h (3PI/2), và tâm segment ở `centerOfWinningSegment` (tính từ 3h, ngược chiều kim đồng hồ),
+            // thì góc xoay CSS (chiều kim đồng hồ) để đưa tâm segment đó lên 12h là:
+            let angleToStopAt = ( (3 * Math.PI / 2) - centerOfWinningSegment );
+            // Đảm bảo góc này nằm trong khoảng [0, 2PI) để dễ tính toán với các vòng quay đầy đủ
+            angleToStopAt = (angleToStopAt % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+
+
+            const randomOffset = (Math.random() - 0.5) * anglePerSegment * 0.4; // Giảm random offset để chính xác hơn
+            const randomSpins = Math.floor(Math.random() * 3) + 8; // 8-10 vòng
+            
+            // Góc quay mong muốn cho currentAngle (sau khi trừ đi góc hiện tại để chỉ lấy phần xoay thêm)
+            let rotationNeeded = angleToStopAt - (currentAngle % (2*Math.PI));
+            rotationNeeded = (rotationNeeded % (2*Math.PI) + 2*Math.PI) % (2*Math.PI); // Đảm bảo dương
+
+            const totalRotation = (randomSpins * 2 * Math.PI) + rotationNeeded + randomOffset;
             
             currentAngle += totalRotation;
             wheelCanvas.style.transform = `rotate(${currentAngle}rad)`;
 
             setTimeout(() => {
                 spinning = false;
-                // Không bật lại nút spin ở đây nữa vì đã hết lượt trong ngày
+                spinButton.disabled = false;
+                statusMessageEl.textContent = "Sẵn sàng thử vận mệnh!";
+                statusMessageEl.classList.remove("text-yellow-400");
                 
-                let rewardMessage = winningReward.text;
+                let rewardMessage = winningReward.text; // Sử dụng winningReward đã được chọn đúng
                 rewardIconDisplayEl.textContent = winningReward.icon;
                 rewardTextDisplayEl.classList.remove("sad-message");
 
                 if (winningReward.isGood) {
-                    resultTitleEl.textContent = "CHIẾN THẮNG!";
+                    resultTitleEl.textContent = "PHẦN THƯỞNG LỚN!";
                     rewardTextDisplayEl.innerHTML = `Bạn nhận được: <strong>${rewardMessage}</strong>`;
-                    winSound.triggerAttackRelease("C5", "8n", Tone.now());
-                    winSound.triggerAttackRelease("E5", "8n", Tone.now() + 0.1);
-                    winSound.triggerAttackRelease("G5", "8n", Tone.now() + 0.2);
-                    winSound.triggerAttackRelease("C6", "4n", Tone.now() + 0.3);
-                    createFireworks(window.innerWidth / 2, window.innerHeight / 2);
+                    const winTime = Tone.now();
+                    winSoundSynth.triggerAttackRelease(["C4", "E4", "G4", "C5"], "4n", winTime);
+                    winSoundSynth.triggerAttackRelease(["E5", "G5", "C6"], "8n", winTime + 0.3);
+                    winSoundSynth.triggerAttackRelease("G6", "2n", winTime + 0.5);
+                    
+                    createBurst(Math.random() * fireworksCanvas.width * 0.6 + fireworksCanvas.width * 0.2, Math.random() * fireworksCanvas.height * 0.4 + fireworksCanvas.height * 0.1);
+                    setTimeout(() => createBurst(Math.random() * fireworksCanvas.width * 0.6 + fireworksCanvas.width * 0.2, Math.random() * fireworksCanvas.height * 0.4 + fireworksCanvas.height * 0.1), 400);
+                    setTimeout(() => createBurst(Math.random() * fireworksCanvas.width * 0.6 + fireworksCanvas.width * 0.2, Math.random() * fireworksCanvas.height * 0.4 + fireworksCanvas.height * 0.1), 800);
                     animateFireworks();
-                } else {
-                    resultTitleEl.textContent = "ỐI...";
+                } else { 
+                    resultTitleEl.textContent = "TIẾC QUÁ...";
                     rewardTextDisplayEl.innerHTML = `<strong class="sad-message">${rewardMessage}</strong>`;
                     rewardTextDisplayEl.classList.add("sad-message");
-                    loseSound.triggerAttackRelease("G3", "4n", Tone.now());
-                    loseSound.triggerAttackRelease("E3", "4n", Tone.now() + 0.2);
-                    loseSound.triggerAttackRelease("C3", "2n", Tone.now() + 0.4);
+                    const loseTime = Tone.now();
+                    loseSoundSynth.triggerAttackRelease("F3", "4n", loseTime);
+                    loseSoundSynth.triggerAttackRelease("D3", "4n", loseTime + 0.3);
+                    loseSoundSynth.triggerAttackRelease("A#2", "2n", loseTime + 0.6);
                 }
                 
                 resultPopup.style.display = 'flex';
-                checkSpinAvailability(); // Cập nhật lại trạng thái nút và thông báo sau khi quay xong
 
-            }, 7100);
+            }, 7600); // Thời gian này phải lớn hơn transition của canvas (7.5s)
         });
 
         closePopup.addEventListener('click', () => {
@@ -432,7 +478,8 @@
 
         // Khởi tạo
         drawWheel();
-        checkSpinAvailability(); // Kiểm tra lượt quay khi tải trang
+        spinButton.disabled = false;
+        statusMessageEl.textContent = "Sẵn sàng thử vận mệnh!";
     </script>
 </body>
 </html>
